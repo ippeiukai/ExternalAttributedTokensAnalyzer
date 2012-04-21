@@ -73,6 +73,30 @@ public class TestPatternTokenizer extends BaseTokenStreamTestCase
     } 
   }
   
+  public void testSplittingWithEmptyTokenEnabled() throws Exception 
+  {
+    String qpattern = "\\'([^\\']*)\\'"; // get stuff between "'"
+    String[][] tests = {
+      // group  pattern        input                    output
+      { "-1",   "--",          "--aaa--bbb--ccc",         " aaa bbb ccc" },
+      { "-1",   ":",           ":aaa:bbb:ccc",           " aaa bbb ccc" },
+      { "-1",   "\\p{Space}",  "aaa   bbb \t\tccc  ",   "aaa   bbb   ccc  " },
+      { "-1",   ":",           "boo:and:foo",           "boo and foo" },
+      { "-1",   "o",           "boo:and:foo",           "b  :and:f  " },
+      { "0",    ":",           "boo:and:foo",           ": :" },
+      { "0",    qpattern,      "aaa 'bbb' '' 'ccc'",       "'bbb' '' 'ccc'" },
+      { "1",    qpattern,      "aaa 'bbb' '' 'ccc' ''",       "bbb  ccc " }
+    };
+    
+    for( String[] test : tests ) {     
+      TokenStream stream = new PatternTokenizer(new StringReader(test[2]), Pattern.compile(test[1]), Integer.parseInt(test[0]), /*enableEmptyToken*/true);
+      String out = tsToString( stream );
+      // System.out.println( test[2] + " ==> " + out );
+
+      assertEquals("pattern: "+test[1]+" with input: "+test[2], test[3], out );
+    } 
+  }
+  
   public void testOffsetCorrection() throws Exception {
     final String INPUT = "G&uuml;nther G&uuml;nther is here";
 
@@ -111,12 +135,13 @@ public class TestPatternTokenizer extends BaseTokenStreamTestCase
     in.clearAttributes();
     termAtt.setEmpty().append("bogusTerm");
     while (in.incrementToken()) {
-      if (out.length() > 0)
-        out.append(' ');
       out.append(termAtt.toString());
       in.clearAttributes();
       termAtt.setEmpty().append("bogusTerm");
+      out.append(' ');
     }
+    if(out.length() > 0)
+      out.deleteCharAt(out.length() - 1);
 
     in.close();
     return out.toString();

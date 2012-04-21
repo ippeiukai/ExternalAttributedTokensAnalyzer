@@ -48,7 +48,7 @@ import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
  * the output will be two tokens: 'bbb' and 'ccc' (including the ' marks).  With the same input
  * but using group=1, the output would be: bbb and ccc (no ' marks)
  * </p>
- * <p>NOTE: This Tokenizer does not output tokens that are of zero length.</p>
+ * <p>NOTE: This Tokenizer does not output tokens that are of zero length unless specified so.</p>
  *
  * @see Pattern
  */
@@ -63,53 +63,73 @@ public final class PatternTokenizer extends Tokenizer {
   private final Pattern pattern;
   private final int group;
   private final Matcher matcher;
+  private final boolean outputEmptyToken;
+  
+  private final static int EXHAUSTED = -1;
 
   /** creates a new PatternTokenizer returning tokens from group (-1 for split functionality) */
-  public PatternTokenizer(Reader input, Pattern pattern, int group) throws IOException {
+  public PatternTokenizer(Reader input, Pattern pattern, int group, boolean enableEmptyToken) throws IOException {
     super(input);
     this.pattern = pattern;
     this.group = group;
+    this.outputEmptyToken = enableEmptyToken;
 
     // Use "" instead of str so don't consume chars
     // (fillBuffer) from the input on throwing IAE below:
     matcher = pattern.matcher("");
 
     // confusingly group count depends ENTIRELY on the pattern but is only accessible via matcher
-    if (group >= 0 && group > matcher.groupCount()) {
+    if (!inSplitMode() && group > matcher.groupCount()) {
       throw new IllegalArgumentException("invalid group specified: pattern only has: " + matcher.groupCount() + " capturing groups");
     }
     fillBuffer(str, input);
     matcher.reset(str);
     index = 0;
   }
+  
+  /** enableEmptyToken = false */
+  public PatternTokenizer(Reader input, Pattern pattern, int group) throws IOException{
+    this(input, pattern, group, false);
+  }
+  
+  /** split mode */
+  public PatternTokenizer(Reader input, Pattern pattern, boolean enableEmptyToken) throws IOException{
+    this(input, pattern, -1, enableEmptyToken);
+  }
+  
+  /** split mode, enableEmptyToken = false */
+  public PatternTokenizer(Reader input, Pattern pattern) throws IOException{
+    this(input, pattern, -1, false);
+  }
 
   @Override
   public boolean incrementToken() throws IOException {
-    if (index >= str.length()) return false;
+    if (index == EXHAUSTED) return false;
     clearAttributes();
-    if (group >= 0) {
+    if (!inSplitMode()) {
     
       // match a specific group
       while (matcher.find()) {
         index = matcher.start(group);
         final int endIndex = matcher.end(group);
-        if (index == endIndex) continue;       
+        if (!outputEmptyToken && index == endIndex) continue;       
         termAtt.setEmpty().append(str, index, endIndex);
         offsetAtt.setOffset(correctOffset(index), correctOffset(endIndex));
         return true;
       }
       
-      index = Integer.MAX_VALUE; // mark exhausted
+      index = EXHAUSTED;
       return false;
       
     } else {
     
       // String.split() functionality
       while (matcher.find()) {
-        if (matcher.start() - index > 0) {
+        final int startIndex = matcher.start();
+        if (outputEmptyToken || startIndex - index > 0) {
           // found a non-zero-length token
-          termAtt.setEmpty().append(str, index, matcher.start());
-          offsetAtt.setOffset(correctOffset(index), correctOffset(matcher.start()));
+          termAtt.setEmpty().append(str, index, startIndex);
+          offsetAtt.setOffset(correctOffset(index), correctOffset(startIndex));
           index = matcher.end();
           return true;
         }
@@ -117,14 +137,14 @@ public final class PatternTokenizer extends Tokenizer {
         index = matcher.end();
       }
       
-      if (str.length() - index == 0) {
-        index = Integer.MAX_VALUE; // mark exhausted
+      if (!outputEmptyToken && str.length() - index == 0) {
+        index = EXHAUSTED;
         return false;
       }
       
       termAtt.setEmpty().append(str, index, str.length());
       offsetAtt.setOffset(correctOffset(index), correctOffset(str.length()));
-      index = Integer.MAX_VALUE; // mark exhausted
+      index = EXHAUSTED;
       return true;
     }
   }
@@ -152,5 +172,9 @@ public final class PatternTokenizer extends Tokenizer {
     while ((len = input.read(buffer)) > 0) {
       sb.append(buffer, 0, len);
     }
+  }
+  
+  private boolean inSplitMode(){
+    return group < 0;
   }
 }

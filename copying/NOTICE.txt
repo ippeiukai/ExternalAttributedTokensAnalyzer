@@ -1,0 +1,6 @@
+ExternalAttributedTokensAnalyzer
+Copyright 2012 Ippei UKAI
+
+This product includes software developed by The Apache Software Foundation (http://www.apache.org/).
+
+Contains source code imported from Apache Lucene, whose NOTICE and LICENSE files are attached to this document.
