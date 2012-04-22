@@ -8,40 +8,39 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.util.AttributeSource;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
-public class PatternSplittingSubtokenizeFilter extends SubtokenizeFilter {
+public class PatternSplittingSubtokenizer implements SubtokenizeFilter.Subtokenizer {
   
-  private AttributeSource.State state;
   private Matcher matcher;
-  private static final int EXHAUSTED = -1;
-  private int index = EXHAUSTED;
   
-  /**
-   * @param input
-   * @param pattern
-   */
-  public PatternSplittingSubtokenizeFilter(TokenStream input, Pattern pattern) {
-    super(input);
+  public PatternSplittingSubtokenizer(Pattern pattern) {
     matcher = pattern.matcher("");
   }
   
+  private static final int EXHAUSTED = -1;
+  private int index = EXHAUSTED;
+  private CharTermAttribute termAttr;
+  
   @Override
-  protected void resetSubtokenization() {
-    state = captureState();
+  public void init(TokenStream attributeSource) {
+    termAttr = attributeSource.getAttribute(CharTermAttribute.class);
+  }
+  
+  @Override
+  public void resetSubtokenization() {
     matcher.reset(termAttr);
+    buffer.delete(0, buffer.length());
     index = 0;
   }
   
   private final StringBuilder buffer = new StringBuilder();
   
   @Override
-  protected boolean incrementSubtoken() {
+  public boolean incrementSubtoken() {
     if (index == EXHAUSTED) {
       return false;
     }
-    clearAttributes();
-    restoreState(state);
     final int nextStart, end;
     if (matcher.find()) {
       end = matcher.start();

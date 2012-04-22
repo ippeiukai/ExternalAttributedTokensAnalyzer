@@ -5,32 +5,30 @@
 package com.github.ippeiukai.lucene.external_token.analysis;
 
 import java.io.IOException;
-import java.util.Formatter;
 
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
+import org.apache.lucene.util.AttributeSource;
 
-public abstract class SubtokenizeFilter extends TokenFilter {
+public class SubtokenizeFilter extends TokenFilter {
   
   private enum NextAction {
     INCREMENT_INPUT, SUBTOKENS, EXHAUSTED
   }
-  
   private NextAction next;
   
   protected CharTermAttribute termAttr;
   private PositionIncrementAttribute posIncrAttr;
-  
-  private int subtokenCount;
-  private int maxNumSubtoken = Integer.MAX_VALUE;
-  private String labelFormat = null;
+  private final Subtokenizer subtokenizer;
+
+  private AttributeSource.State preSubtokenizeState;
 
   /**
    * @param input
    */
-  public SubtokenizeFilter(TokenStream input) {
+  public SubtokenizeFilter(TokenStream input, Subtokenizer subtokenizer) {
     super(input);
     next = NextAction.INCREMENT_INPUT;
     termAttr = getAttribute(CharTermAttribute.class);
@@ -39,6 +37,8 @@ public abstract class SubtokenizeFilter extends TokenFilter {
     } else {
       posIncrAttr = addAttribute(PositionIncrementAttribute.class);
     }
+    subtokenizer.init(this);
+    this.subtokenizer = subtokenizer;
   }
 
   @Override
@@ -56,8 +56,8 @@ public abstract class SubtokenizeFilter extends TokenFilter {
             posIncrAttr.setPositionIncrement(posIncrAttr.getPositionIncrement()
                 + skippedPosIncr);
           }
-          resetSubtokenization();
-          subtokenCount = 0;
+          preSubtokenizeState = captureState();
+          subtokenizer.resetSubtokenization();
           if (nextSubtoken()) {
             next = NextAction.SUBTOKENS;
             return true; // first subtoken
@@ -69,19 +69,11 @@ public abstract class SubtokenizeFilter extends TokenFilter {
         return false;
     }
   }
-
-  private final StringBuilder buffer = new StringBuilder();
-  private final Formatter bufferFormatter = new Formatter(buffer);
   
   private boolean nextSubtoken() {
-    if (!incrementSubtoken()) return false;
-    if (maxNumSubtoken < ++subtokenCount) return false;
-    if (labelFormat != null) {
-      buffer.delete(0, buffer.length());
-      bufferFormatter.format(labelFormat, subtokenCount - 1, termAttr).flush();
-      termAttr.setEmpty().append(buffer);
-    }
-    return true;
+    clearAttributes();
+    restoreState(preSubtokenizeState);
+    return subtokenizer.incrementSubtoken();
   }
   
   @Override
@@ -90,23 +82,35 @@ public abstract class SubtokenizeFilter extends TokenFilter {
     next = NextAction.INCREMENT_INPUT;
   }
   
-  /**
-   * default is Integer.MAX_VALUE
-   */
-  public SubtokenizeFilter setMaxNumSubtoken(int maxNumSubtoken) {
-    this.maxNumSubtoken = maxNumSubtoken;
-    return this;
-  }
-
-  /**
-   * @param format use %1$d for index, %2$s for term. 
-   */
-  public SubtokenizeFilter setEnableIndexMarking(String format) {
-    labelFormat = format;
-    return this;
-  }
-
-  protected abstract boolean incrementSubtoken();
+  //-------------
   
-  protected abstract void resetSubtokenization();
+  public static interface Subtokenizer {
+    void init(TokenStream attributeSource);  
+    boolean incrementSubtoken();
+    void resetSubtokenization();
+  }
+  
+  public static class FilterSubtokenizer implements Subtokenizer {
+    protected Subtokenizer inner;
+    
+    public FilterSubtokenizer(Subtokenizer inner) {
+      this.inner = inner;
+    }
+
+    @Override
+    public void init(TokenStream attributeSource) {
+      inner.init(attributeSource);
+    }
+
+    @Override
+    public boolean incrementSubtoken() {
+      return inner.incrementSubtoken();
+    }
+
+    @Override
+    public void resetSubtokenization() {
+      inner.resetSubtokenization();
+    }
+  }
+  
 }
