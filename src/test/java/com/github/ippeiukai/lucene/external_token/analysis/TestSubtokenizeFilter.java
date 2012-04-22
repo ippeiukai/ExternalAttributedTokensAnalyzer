@@ -6,7 +6,6 @@ package com.github.ippeiukai.lucene.external_token.analysis;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.lucene.analysis.BaseTokenStreamTestCase;
