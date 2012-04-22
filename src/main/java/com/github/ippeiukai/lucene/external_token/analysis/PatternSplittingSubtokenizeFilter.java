@@ -8,15 +8,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttributeImpl;
 import org.apache.lucene.util.AttributeSource;
 
 public class PatternSplittingSubtokenizeFilter extends SubtokenizeFilter {
   
   private AttributeSource.State state;
   private Matcher matcher;
-  private CharTermAttribute termAttr;
   private static final int EXHAUSTED = -1;
   private int index = EXHAUSTED;
   
@@ -27,7 +24,6 @@ public class PatternSplittingSubtokenizeFilter extends SubtokenizeFilter {
   public PatternSplittingSubtokenizeFilter(TokenStream input, Pattern pattern) {
     super(input);
     matcher = pattern.matcher("");
-    termAttr = getAttribute(CharTermAttribute.class);
   }
   
   @Override
@@ -37,7 +33,7 @@ public class PatternSplittingSubtokenizeFilter extends SubtokenizeFilter {
     index = 0;
   }
   
-  private final CharTermAttributeImpl buffer = new CharTermAttributeImpl();
+  private final StringBuilder buffer = new StringBuilder();
   
   @Override
   protected boolean incrementSubtoken() {
@@ -54,8 +50,8 @@ public class PatternSplittingSubtokenizeFilter extends SubtokenizeFilter {
       end = termAttr.length();
       nextStart = EXHAUSTED;
     }
-    buffer.setEmpty().append(termAttr, index, end);
-    termAttr.setEmpty().append(buffer, 0, end - index);
+    buffer.delete(0, buffer.length()).append(termAttr, index, end);
+    termAttr.setEmpty().append(buffer);
     index = nextStart;
     return true;
   }

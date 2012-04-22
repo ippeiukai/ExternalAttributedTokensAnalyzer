@@ -63,16 +63,15 @@ public final class PatternTokenizer extends Tokenizer {
   private final Pattern pattern;
   private final int group;
   private final Matcher matcher;
-  private final boolean outputEmptyToken;
+  private boolean outputEmptyToken = false;
   
   private final static int EXHAUSTED = -1;
 
   /** creates a new PatternTokenizer returning tokens from group (-1 for split functionality) */
-  public PatternTokenizer(Reader input, Pattern pattern, int group, boolean enableEmptyToken) throws IOException {
+  public PatternTokenizer(Reader input, Pattern pattern, int group) throws IOException {
     super(input);
     this.pattern = pattern;
     this.group = group;
-    this.outputEmptyToken = enableEmptyToken;
 
     // Use "" instead of str so don't consume chars
     // (fillBuffer) from the input on throwing IAE below:
@@ -85,21 +84,6 @@ public final class PatternTokenizer extends Tokenizer {
     fillBuffer(str, input);
     matcher.reset(str);
     index = 0;
-  }
-  
-  /** enableEmptyToken = false */
-  public PatternTokenizer(Reader input, Pattern pattern, int group) throws IOException{
-    this(input, pattern, group, false);
-  }
-  
-  /** split mode */
-  public PatternTokenizer(Reader input, Pattern pattern, boolean enableEmptyToken) throws IOException{
-    this(input, pattern, -1, enableEmptyToken);
-  }
-  
-  /** split mode, enableEmptyToken = false */
-  public PatternTokenizer(Reader input, Pattern pattern) throws IOException{
-    this(input, pattern, -1, false);
   }
 
   @Override
@@ -163,6 +147,11 @@ public final class PatternTokenizer extends Tokenizer {
     index = 0;
   }
   
+  public final PatternTokenizer setOutputsEmptyToken(boolean outputsEmptyToken) {
+    this.outputEmptyToken = outputsEmptyToken;
+    return this;
+  }
+
   // TODO: we should see if we can make this tokenizer work without reading
   // the entire document into RAM, perhaps with Matcher.hitEnd/requireEnd ?
   final char[] buffer = new char[8192];

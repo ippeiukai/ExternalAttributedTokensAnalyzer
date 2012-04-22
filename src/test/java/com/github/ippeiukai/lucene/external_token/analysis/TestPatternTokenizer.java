@@ -89,7 +89,8 @@ public class TestPatternTokenizer extends BaseTokenStreamTestCase
     };
     
     for( String[] test : tests ) {     
-      TokenStream stream = new PatternTokenizer(new StringReader(test[2]), Pattern.compile(test[1]), Integer.parseInt(test[0]), /*enableEmptyToken*/true);
+      TokenStream stream = new PatternTokenizer(new StringReader(test[2]), Pattern.compile(test[1]), Integer.parseInt(test[0]))
+        .setOutputsEmptyToken(true);
       String out = tsToString( stream );
       // System.out.println( test[2] + " ==> " + out );
 
