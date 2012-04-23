@@ -2,7 +2,7 @@
  * ExternalAttributedTokensAnalyzer
  * Copyright 2012 Ippei Ukai
  */
-package com.github.ippeiukai.lucene.external_token.analysis;
+package com.github.ippeiukai.lucene.external_token.analysis.subtokenizers;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,7 +10,10 @@ import java.util.regex.Pattern;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
-public class PatternSplittingSubtokenizer implements SubtokenizeFilter.Subtokenizer {
+import com.github.ippeiukai.lucene.external_token.analysis.Subtokenizer;
+
+
+public class PatternSplittingSubtokenizer implements Subtokenizer {
   
   private Matcher matcher;
   
@@ -24,13 +27,13 @@ public class PatternSplittingSubtokenizer implements SubtokenizeFilter.Subtokeni
   
   @Override
   public void init(TokenStream attributeSource) {
-    termAttr = attributeSource.getAttribute(CharTermAttribute.class);
+    termAttr = attributeSource.addAttribute(CharTermAttribute.class);
   }
   
   @Override
   public void resetSubtokenization() {
-    matcher.reset(termAttr);
-    buffer.delete(0, buffer.length());
+    buffer.delete(0, buffer.length()).append(termAttr);
+    matcher.reset(buffer);
     index = 0;
   }
   
@@ -46,11 +49,14 @@ public class PatternSplittingSubtokenizer implements SubtokenizeFilter.Subtokeni
       end = matcher.start();
       nextStart = matcher.end();
     } else {
-      end = termAttr.length();
+      end = buffer.length();
       nextStart = EXHAUSTED;
     }
-    buffer.delete(0, buffer.length()).append(termAttr, index, end);
-    termAttr.setEmpty().append(buffer);
+    System.out.println(buffer);
+    System.out.println(index);
+    System.out.println(end);
+    System.out.println(nextStart);
+    termAttr.setEmpty().append(buffer, index, end);
     index = nextStart;
     return true;
   }

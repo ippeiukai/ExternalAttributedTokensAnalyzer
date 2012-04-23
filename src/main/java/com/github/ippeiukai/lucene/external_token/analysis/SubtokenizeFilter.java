@@ -12,6 +12,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.util.AttributeSource;
 
+
 public class SubtokenizeFilter extends TokenFilter {
   
   private enum NextAction {
@@ -19,8 +20,8 @@ public class SubtokenizeFilter extends TokenFilter {
   }
   private NextAction next;
   
-  protected CharTermAttribute termAttr;
-  private PositionIncrementAttribute posIncrAttr;
+  protected final CharTermAttribute termAttr;
+  private final PositionIncrementAttribute posIncrAttr;
   private final Subtokenizer subtokenizer;
 
   private AttributeSource.State preSubtokenizeState;
@@ -31,12 +32,8 @@ public class SubtokenizeFilter extends TokenFilter {
   public SubtokenizeFilter(TokenStream input, Subtokenizer subtokenizer) {
     super(input);
     next = NextAction.INCREMENT_INPUT;
-    termAttr = getAttribute(CharTermAttribute.class);
-    if (hasAttribute(PositionIncrementAttribute.class)) {
-      posIncrAttr = getAttribute(PositionIncrementAttribute.class);
-    } else {
-      posIncrAttr = addAttribute(PositionIncrementAttribute.class);
-    }
+    termAttr = addAttribute(CharTermAttribute.class);
+    posIncrAttr = addAttribute(PositionIncrementAttribute.class);    
     subtokenizer.init(this);
     this.subtokenizer = subtokenizer;
   }
@@ -45,8 +42,7 @@ public class SubtokenizeFilter extends TokenFilter {
   public boolean incrementToken() throws IOException {
     switch (next) {
       case SUBTOKENS:
-        if (nextSubtoken()) {
-          posIncrAttr.setPositionIncrement(0);
+        if (nextSubtoken(0)) {
           return true; // subsequent subtokens
         }
       case INCREMENT_INPUT:
@@ -69,48 +65,29 @@ public class SubtokenizeFilter extends TokenFilter {
         return false;
     }
   }
-  
+
   private boolean nextSubtoken() {
     clearAttributes();
     restoreState(preSubtokenizeState);
+
+    System.out.println(termAttr);
+    return subtokenizer.incrementSubtoken();
+  }
+  
+  private boolean nextSubtoken(int positionIncrement) {
+    clearAttributes();
+    restoreState(preSubtokenizeState);
+
+    System.out.println(termAttr);
+    posIncrAttr.setPositionIncrement(positionIncrement);
     return subtokenizer.incrementSubtoken();
   }
   
   @Override
   public void reset() throws IOException {
     super.reset();
+    subtokenizer.init(this);
     next = NextAction.INCREMENT_INPUT;
-  }
-  
-  //-------------
-  
-  public static interface Subtokenizer {
-    void init(TokenStream attributeSource);  
-    boolean incrementSubtoken();
-    void resetSubtokenization();
-  }
-  
-  public static class FilterSubtokenizer implements Subtokenizer {
-    protected Subtokenizer inner;
-    
-    public FilterSubtokenizer(Subtokenizer inner) {
-      this.inner = inner;
-    }
-
-    @Override
-    public void init(TokenStream attributeSource) {
-      inner.init(attributeSource);
-    }
-
-    @Override
-    public boolean incrementSubtoken() {
-      return inner.incrementSubtoken();
-    }
-
-    @Override
-    public void resetSubtokenization() {
-      inner.resetSubtokenization();
-    }
   }
   
 }
