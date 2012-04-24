@@ -2,12 +2,12 @@
  * ExternalAttributedTokensAnalyzer
  * Copyright 2012 Ippei Ukai
  */
-package com.github.ippeiukai.lucene.external_token.analysis.subtokenizers;
+package com.github.ippeiukai.externaltoken.lucene.analysis.subtokenizers;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.FlagsAttribute;
 
-import com.github.ippeiukai.lucene.external_token.analysis.Subtokenizer;
+import com.github.ippeiukai.externaltoken.lucene.analysis.Subtokenizer;
 
 
 public class IndexFlaggingFilterSubtokenizer extends

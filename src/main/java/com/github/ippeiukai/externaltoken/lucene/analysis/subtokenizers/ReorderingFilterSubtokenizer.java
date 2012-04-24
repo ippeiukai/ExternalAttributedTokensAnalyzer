@@ -2,7 +2,7 @@
  * ExternalAttributedTokensAnalyzer
  * Copyright 2012 Ippei Ukai
  */
-package com.github.ippeiukai.lucene.external_token.analysis.subtokenizers;
+package com.github.ippeiukai.externaltoken.lucene.analysis.subtokenizers;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -12,7 +12,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.FlagsAttribute;
 import org.apache.lucene.util.AttributeSource;
 
-import com.github.ippeiukai.lucene.external_token.analysis.Subtokenizer;
+import com.github.ippeiukai.externaltoken.lucene.analysis.Subtokenizer;
 
 /**
  * reorder according to the index in FlagsAttribute

@@ -2,14 +2,14 @@
  * ExternalAttributedTokensAnalyzer
  * Copyright 2012 Ippei Ukai
  */
-package com.github.ippeiukai.lucene.external_token.analysis.subtokenizers;
+package com.github.ippeiukai.externaltoken.lucene.analysis.subtokenizers;
 
 import java.util.Formatter;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
-import com.github.ippeiukai.lucene.external_token.analysis.Subtokenizer;
+import com.github.ippeiukai.externaltoken.lucene.analysis.Subtokenizer;
 
 /**
  * format will be used with the subtoken count or the label and term.

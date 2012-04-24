@@ -2,7 +2,7 @@
  * ExternalAttributedTokensAnalyzer
  * Copyright 2012 Ippei Ukai
  */
-package com.github.ippeiukai.lucene.external_token.analysis;
+package com.github.ippeiukai.externaltoken.lucene.analysis;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -13,13 +13,16 @@ import org.apache.lucene.analysis.MockTokenizer;
 import org.apache.lucene.analysis.TokenStream;
 import org.junit.Test;
 
-import com.github.ippeiukai.lucene.external_token.analysis.subtokenizers.IncrementPositionFilterSubtokenizer;
-import com.github.ippeiukai.lucene.external_token.analysis.subtokenizers.IndexFlaggingFilterSubtokenizer;
-import com.github.ippeiukai.lucene.external_token.analysis.subtokenizers.LabelIndexFlaggingFilterSubtokenizer;
-import com.github.ippeiukai.lucene.external_token.analysis.subtokenizers.LabellingFilterSubtokenizer;
-import com.github.ippeiukai.lucene.external_token.analysis.subtokenizers.LimitNumberFilterSubtokenizer;
-import com.github.ippeiukai.lucene.external_token.analysis.subtokenizers.PatternSplittingSubtokenizer;
-import com.github.ippeiukai.lucene.external_token.analysis.subtokenizers.ReorderingFilterSubtokenizer;
+import com.github.ippeiukai.externaltoken.lucene.analysis.PositionMultiplyingTokenFilter;
+import com.github.ippeiukai.externaltoken.lucene.analysis.SubtokenizeFilter;
+import com.github.ippeiukai.externaltoken.lucene.analysis.Subtokenizer;
+import com.github.ippeiukai.externaltoken.lucene.analysis.subtokenizers.IncrementPositionFilterSubtokenizer;
+import com.github.ippeiukai.externaltoken.lucene.analysis.subtokenizers.IndexFlaggingFilterSubtokenizer;
+import com.github.ippeiukai.externaltoken.lucene.analysis.subtokenizers.LabelIndexFlaggingFilterSubtokenizer;
+import com.github.ippeiukai.externaltoken.lucene.analysis.subtokenizers.LabellingFilterSubtokenizer;
+import com.github.ippeiukai.externaltoken.lucene.analysis.subtokenizers.LimitNumberFilterSubtokenizer;
+import com.github.ippeiukai.externaltoken.lucene.analysis.subtokenizers.PatternSplittingSubtokenizer;
+import com.github.ippeiukai.externaltoken.lucene.analysis.subtokenizers.ReorderingFilterSubtokenizer;
 
 public class TestSubtokenizeFilter extends
     BaseTokenStreamTestCase {

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.ippeiukai.lucene.external_token.analysis;
+package com.github.ippeiukai.externaltoken.lucene.analysis;
 
 import java.io.IOException;
 import java.io.Reader;

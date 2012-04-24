@@ -2,7 +2,7 @@
  * ExternalAttributedTokensAnalyzer
  * Copyright 2012 Ippei Ukai
  */
-package com.github.ippeiukai.lucene.external_token.analysis;
+package com.github.ippeiukai.externaltoken.lucene.analysis;
 
 import org.apache.lucene.analysis.TokenStream;
 

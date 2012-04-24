@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.ippeiukai.lucene.external_token.analysis;
+package com.github.ippeiukai.externaltoken.lucene.analysis;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -33,6 +33,8 @@ import org.apache.lucene.analysis.NormalizeCharMap;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+
+import com.github.ippeiukai.externaltoken.lucene.analysis.PatternTokenizer;
 
 public class TestPatternTokenizer extends BaseTokenStreamTestCase 
 {
