@@ -10,8 +10,6 @@ import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
-import org.apache.lucene.util.AttributeSource;
-
 
 public class SubtokenizeFilter extends TokenFilter {
   
@@ -24,18 +22,24 @@ public class SubtokenizeFilter extends TokenFilter {
   private final PositionIncrementAttribute posIncrAttr;
   private final Subtokenizer subtokenizer;
 
-  private AttributeSource.State preSubtokenizeState;
+  private State preSubtokenizeState;
 
-  /**
-   * @param input
-   */
-  public SubtokenizeFilter(TokenStream input, Subtokenizer subtokenizer) {
+  public SubtokenizeFilter(TokenStream input, SubtokenizerFactory subtokenizerFactory) {
     super(input);
     next = NextAction.INCREMENT_INPUT;
     termAttr = addAttribute(CharTermAttribute.class);
     posIncrAttr = addAttribute(PositionIncrementAttribute.class);    
+    subtokenizer = subtokenizerFactory.subtokenizer();
     subtokenizer.init(this);
-    this.subtokenizer = subtokenizer;
+  }
+  
+  public SubtokenizeFilter(TokenStream input, final Subtokenizer subtokenizer) {
+    this(input, new SubtokenizerFactory() {
+      @Override
+      public Subtokenizer subtokenizer() {
+        return subtokenizer;
+      }
+    });
   }
 
   @Override

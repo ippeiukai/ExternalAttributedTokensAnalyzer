@@ -44,7 +44,8 @@ public class LabelIndexFlaggingFilterSubtokenizer extends
     this.matcher = pattern.matcher("");
     this.group = group;
     labelsIndex = new HashMap<String,Integer>(labels.length * 2);
-    for (int index = 0; index < labels.length; ++index){
+    for (int index = labels.length - 1; index >= 0; --index) {
+      if (labels[index] == null) continue;
       labelsIndex.put(labels[index], index);
     }
     this.defaultLabelIndex = defaultLabelIndex;
