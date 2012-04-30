@@ -24,7 +24,7 @@ import com.github.ippeiukai.externaltoken.lucene.analysis.subtokenizers.Reorderi
  *  => subtokenDelimiter:"/", numMaxTags:4, labels:{"text","lemma","pos","form-case-tense-aspect"}
  * 
  * labelledTagMode: <br>
- * input: "text:cars|pos:noun", "text:cars|lemma:car|pos:noun|form-case-tense-aspect:plural"<br>
+ * input: "lemma:car|pos:noun", "text:cars|lemma:car|pos:noun|form-case-tense-aspect:plural"<br>
  *  => subtokenDelimiter:"|", labels:{"text","lemma","pos","form-case-tense-aspect"}
  *  
  * 
@@ -32,20 +32,21 @@ import com.github.ippeiukai.externaltoken.lucene.analysis.subtokenizers.Reorderi
 public class TaggedTokenSubtokenizeFilter extends SubtokenizeFilter {
   
   /**
-   * orderedTagMode
+   * orderedTagMode with labels
    */
   public TaggedTokenSubtokenizeFilter(TokenStream input,
-      String subtokenDelimiter, int numMaxTags) {
+      Pattern subtokenDelimiter, int numMaxTags, String[] labels) {
     super(prefilter(input, numMaxTags), orderedTagMode(subtokenDelimiter,
-        numMaxTags));
+        numMaxTags, labels));
   }
-  
+
   /**
    * orderedTagMode with labels
    */
   public TaggedTokenSubtokenizeFilter(TokenStream input,
       String subtokenDelimiter, int numMaxTags, String[] labels) {
-    super(prefilter(input, numMaxTags), orderedTagMode(subtokenDelimiter,
+    super(prefilter(input, numMaxTags), orderedTagMode(Pattern.compile(Pattern
+        .quote(subtokenDelimiter)),
         numMaxTags, labels));
   }
   
@@ -53,8 +54,18 @@ public class TaggedTokenSubtokenizeFilter extends SubtokenizeFilter {
    * labelledTagMode
    */
   public TaggedTokenSubtokenizeFilter(TokenStream input,
-      String subtokenDelimiter, String labelDelimiter, String[] labels) {
+      Pattern subtokenDelimiter, String labelDelimiter, String[] labels) {
     super(prefilter(input, labels.length), labelledTagMode(subtokenDelimiter,
+        labelDelimiter, labels));
+  }
+  
+  /**
+   * labelledTagMode
+   */
+  public TaggedTokenSubtokenizeFilter(TokenStream input,
+      String subtokenDelimiter, String labelDelimiter, String[] labels) {
+    super(prefilter(input, labels.length), labelledTagMode(Pattern.compile(Pattern
+        .quote(subtokenDelimiter)),
         labelDelimiter, labels));
   }
   
@@ -62,16 +73,10 @@ public class TaggedTokenSubtokenizeFilter extends SubtokenizeFilter {
     return new PositionMultiplyingTokenFilter(input, numMaxTags);
   }
   
-  private static SubtokenizerFactory orderedTagMode(String subtokenDelimiter,
-      int numMaxTags) {
-    return orderedTagMode(subtokenDelimiter, numMaxTags, null);
-  }
-  
-  private static SubtokenizerFactory orderedTagMode(String subtokenDelimiter,
+  private static SubtokenizerFactory orderedTagMode(Pattern subtokenDelimiter,
       int numMaxTags, String[] labels) {
-    
-    final Pattern _delimiterPattern = Pattern.compile(Pattern
-        .quote(subtokenDelimiter));
+
+    final Pattern _delimiterPattern = subtokenDelimiter;
     final int _numMaxTags = numMaxTags;
     final String _labelFormat;
     final String[] _labels;
@@ -104,11 +109,10 @@ public class TaggedTokenSubtokenizeFilter extends SubtokenizeFilter {
     };
   }
   
-  private static SubtokenizerFactory labelledTagMode(String subtokenDelimiter,
+  private static SubtokenizerFactory labelledTagMode(Pattern subtokenDelimiter,
       String labelDelimiter, String[] labels) {
     
-    final Pattern _delimiterPattern = Pattern.compile(Pattern
-        .quote(subtokenDelimiter));
+    final Pattern _delimiterPattern = subtokenDelimiter;
     final Pattern _labelPattern = Pattern.compile(String.format("(.*)%s",
         Pattern.quote(labelDelimiter)));
     final int _labelPatternGroup = 1;

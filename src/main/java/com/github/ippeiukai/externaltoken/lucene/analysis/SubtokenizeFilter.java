@@ -74,7 +74,6 @@ public class SubtokenizeFilter extends TokenFilter {
     clearAttributes();
     restoreState(preSubtokenizeState);
 
-    System.out.println(termAttr);
     return subtokenizer.incrementSubtoken();
   }
   
@@ -82,7 +81,6 @@ public class SubtokenizeFilter extends TokenFilter {
     clearAttributes();
     restoreState(preSubtokenizeState);
 
-    System.out.println(termAttr);
     posIncrAttr.setPositionIncrement(positionIncrement);
     return subtokenizer.incrementSubtoken();
   }

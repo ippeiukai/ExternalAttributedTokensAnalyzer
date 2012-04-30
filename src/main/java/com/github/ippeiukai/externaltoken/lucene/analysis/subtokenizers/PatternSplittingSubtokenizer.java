@@ -52,10 +52,6 @@ public class PatternSplittingSubtokenizer implements Subtokenizer {
       end = buffer.length();
       nextStart = EXHAUSTED;
     }
-    System.out.println(buffer);
-    System.out.println(index);
-    System.out.println(end);
-    System.out.println(nextStart);
     termAttr.setEmpty().append(buffer, index, end);
     index = nextStart;
     return true;
