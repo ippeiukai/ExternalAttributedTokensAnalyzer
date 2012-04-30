@@ -20,17 +20,17 @@ class TokenizerFactoryParameterAdapter extends BaseTokenizerFactory implements P
   
   @Override
   public String get(String parameterKey) {
-    return get(parameterKey);
+    return getArgs().get(parameterKey);
   }
   
   @Override
   public int getInt(String parameterKey, int defaultValue) {
-    return getInt(parameterKey, defaultValue);
+    return super.getInt(parameterKey, defaultValue);
   }
   
   @Override
   public boolean getBoolean(String parameterKey, boolean defaultValue) {
-    return getBoolean(parameterKey, defaultValue);
+    return super.getBoolean(parameterKey, defaultValue);
   }
 
   @Override
