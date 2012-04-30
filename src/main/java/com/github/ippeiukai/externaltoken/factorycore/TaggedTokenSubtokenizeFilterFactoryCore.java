@@ -21,7 +21,8 @@ public class TaggedTokenSubtokenizeFilterFactoryCore extends TokenFilterFactoryC
   private Pattern subtokenDelimiter;
   private String[] labels;
   private int numMaxTags;
-  private String labelDelimiter;
+  private Pattern labelPattern;
+  private int labelPatternGroup;
   
   public TaggedTokenSubtokenizeFilterFactoryCore(ParameterProvider setting) {
     super(setting);
@@ -29,7 +30,7 @@ public class TaggedTokenSubtokenizeFilterFactoryCore extends TokenFilterFactoryC
     String subtokenDelimiterStr = setting.get("subtokenDelimiter");
     String labelsStr = setting.get("labels");
     numMaxTags = setting.getInt("numMaxTags", -1);
-    labelDelimiter = setting.get("labelDelimiter");
+    String labelDelimiter = setting.get("labelDelimiter");
     
     if(modeStr == null){
       throw new IllegalArgumentException("no mode");
@@ -66,6 +67,12 @@ public class TaggedTokenSubtokenizeFilterFactoryCore extends TokenFilterFactoryC
         if(labelDelimiter == null){
           throw new IllegalArgumentException("no labelDelimiter");
         }
+        try{
+          labelPattern = Pattern.compile(String.format("(.*)%s", labelDelimiter));
+        }catch(PatternSyntaxException e){
+          throw new IllegalArgumentException(e);
+        }
+        labelPatternGroup = 1;
         break;
     }
   }
@@ -76,7 +83,8 @@ public class TaggedTokenSubtokenizeFilterFactoryCore extends TokenFilterFactoryC
       case ORDERED:
         return new TaggedTokenSubtokenizeFilter(input, subtokenDelimiter, numMaxTags, labels);
       case LABELLED:
-        return new TaggedTokenSubtokenizeFilter(input, subtokenDelimiter, labelDelimiter, labels);
+        return new TaggedTokenSubtokenizeFilter(input, subtokenDelimiter,
+            labelPattern, labelPatternGroup, labels);
     }
     throw new Error("We have a bug!");
   }
