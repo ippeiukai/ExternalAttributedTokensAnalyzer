@@ -2,7 +2,7 @@
  * ExternalAttributedTokensAnalyzer
  * Copyright 2012 Ippei Ukai
  */
-package com.github.ippeiukai.externaltoken.solr;
+package com.github.ippeiukai.externaltoken.solr.analysis;
 
 import java.util.Map;
 

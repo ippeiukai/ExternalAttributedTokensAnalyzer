@@ -2,18 +2,19 @@
  * ExternalAttributedTokensAnalyzer
  * Copyright 2012 Ippei Ukai
  */
-package com.github.ippeiukai.externaltoken.solr;
+package com.github.ippeiukai.externaltoken.solr.analysis;
 
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.solr.analysis.BaseTokenFilterFactory;
-import org.apache.solr.analysis.TokenFilterFactory;
+import java.io.Reader;
+
+import org.apache.lucene.analysis.Tokenizer;
+import org.apache.solr.analysis.BaseTokenizerFactory;
+import org.apache.solr.analysis.TokenizerFactory;
 
 import com.github.ippeiukai.externaltoken.factorycore.ParameterProvider;
 
-class TokenFilterFactoryParameterAdapter extends BaseTokenFilterFactory
-    implements ParameterProvider {
+class TokenizerFactoryParameterAdapter extends BaseTokenizerFactory implements ParameterProvider  {
   
-  TokenFilterFactoryParameterAdapter(TokenFilterFactory tf) {
+  TokenizerFactoryParameterAdapter(TokenizerFactory tf){
     init(tf.getArgs());
   }
   
@@ -31,9 +32,9 @@ class TokenFilterFactoryParameterAdapter extends BaseTokenFilterFactory
   public boolean getBoolean(String parameterKey, boolean defaultValue) {
     return super.getBoolean(parameterKey, defaultValue);
   }
-  
+
   @Override
-  public TokenStream create(TokenStream input) {
+  public Tokenizer create(Reader arg0) {
     throw new RuntimeException("not implemented");
   }
   
