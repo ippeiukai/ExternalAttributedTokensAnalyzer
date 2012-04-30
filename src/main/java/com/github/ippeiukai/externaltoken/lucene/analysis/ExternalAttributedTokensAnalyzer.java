@@ -1,3 +1,7 @@
+/**
+ * ExternalAttributedTokensAnalyzer
+ * Copyright 2012 Ippei Ukai
+ */
 package com.github.ippeiukai.externaltoken.lucene.analysis;
 
 import java.io.IOException;
@@ -7,8 +11,11 @@ import java.util.regex.Pattern;
 import org.apache.lucene.analysis.ReusableAnalyzerBase;
 
 /**
- * 
- * subtokenDelimiter:"/"
+ * Default:<br>
+ * tokenDelimiter: ASCII record separator<br>
+ * attributeDelimiter: ASCII unit separator<br>
+ * labelDelimiter: ":"<br>
+ * No regex.
  */
 public class ExternalAttributedTokensAnalyzer extends ReusableAnalyzerBase {
   
@@ -24,7 +31,19 @@ public class ExternalAttributedTokensAnalyzer extends ReusableAnalyzerBase {
   public ExternalAttributedTokensAnalyzer(String... labels) {
     this.labels = labels;
   }
+
+  public void setTokenDelimiter(String tokenDelimiter) {
+    this.tokenDelimiter = tokenDelimiter;
+  }
+
+  public void setAttributeDelimiter(String attributeDelimiter) {
+    this.attributeDelimiter = attributeDelimiter;
+  }
   
+  public void setLabelDelimiter(String labelDelimiter) {
+    this.labelDelimiter = labelDelimiter;
+  }
+
   @Override
   protected TokenStreamComponents createComponents(String fieldName,
       Reader reader) {
