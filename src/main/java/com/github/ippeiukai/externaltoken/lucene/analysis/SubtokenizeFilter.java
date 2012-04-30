@@ -43,7 +43,7 @@ public class SubtokenizeFilter extends TokenFilter {
   }
 
   @Override
-  public boolean incrementToken() throws IOException {
+  public final boolean incrementToken() throws IOException {
     switch (next) {
       case SUBTOKENS:
         if (nextSubtoken(0)) {
